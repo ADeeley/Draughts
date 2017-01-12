@@ -17,7 +17,6 @@ class Board():
                                   ["E8", "F7", "G6", "H5"],
                                   ["G8", "H7"]]
         
-    
     def place_counters(self):
         ''' Places the counters on the board for red and black.
             - returns nothing '''
@@ -32,16 +31,21 @@ class Board():
             self.tiles[tile] = Counter(tile, "B")
             
     def display_board(self):
+        letters = "ABCDEFGH"
         counter = 0
+        letter_counter = 0
+        print("\n-----------------------")
         for tile in self.tileNames:
-            if counter %8 == 0:
-                print("\n")
+            if counter %8 == 0 and counter != 0:
+                print(letters[letter_counter], "\n")
+                letter_counter += 1
             if self.tiles[tile] != None:
-                print(self.tiles[tile].get_colour(), end=", ")
+                print(self.tiles[tile].get_colour(), end="  ")
             else:
             
-                print(".", end=", ")
+                print(". ", end=" ")
             counter += 1
+        print(letters[-1   ], "\n-----------------------\n1, 2, 3, 4, 5, 6, 7, 8\n1")
     
     def get_tile(self, tile):
         if self.tiles[tile]:
