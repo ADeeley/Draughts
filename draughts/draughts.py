@@ -34,7 +34,7 @@ class Board():
         letters = "ABCDEFGH"
         counter = 0
         letter_counter = 0
-        print("\n\t -------------------------")
+        print("\n\t\t  \n\t -------------------------")
         for tile in self.tileNames:
             if counter %8 == 0 and counter != 0:
                 print("| ", letters[letter_counter], "\n        |\t\t\t  |")
@@ -110,6 +110,15 @@ class playGame():
         game.place_counters()
         player1 = Player()
         player2 = Player()
+
+        print("""
+ @@@@  @@@@    @@@  @   @  @@@  @   @ @@@@@  @@@@
+ @   @ @   @  @   @ @   @ @   @ @   @   @   @
+ @   @ @@@@   @@@@@ @   @ @ @@@ @@@@@   @    @@@
+ @   @ @  @   @   @ @   @ @   @ @   @   @       @
+ @@@@  @   @  @   @  @@@   @@@  @   @   @   @@@@
+ 
+ by Adam M Deeley.""")
         while not self.game_over:
             if moves % 2 == 0:
                 player = "Red"
@@ -124,3 +133,5 @@ class playGame():
             
 game = playGame()
 game.start_game()
+
+
