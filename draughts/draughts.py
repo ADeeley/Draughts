@@ -34,18 +34,20 @@ class Board():
         letters = "ABCDEFGH"
         counter = 0
         letter_counter = 0
-        print("\n-----------------------")
+        print("\n\t -------------------------")
         for tile in self.tileNames:
             if counter %8 == 0 and counter != 0:
-                print(letters[letter_counter], "\n")
+                print("| ", letters[letter_counter], "\n        |\t\t\t  |")
                 letter_counter += 1
+            if counter %8 == 0:
+                print("\t| ", end="")
             if self.tiles[tile] != None:
                 print(self.tiles[tile].get_colour(), end="  ")
             else:
             
                 print(". ", end=" ")
             counter += 1
-        print(letters[-1   ], "\n-----------------------\n1, 2, 3, 4, 5, 6, 7, 8\n1")
+        print("|", letters[-1   ], "\n\t -------------------------\n\t  1, 2, 3, 4, 5, 6, 7, 8\n ")
     
     def get_tile(self, tile):
         if self.tiles[tile]:
@@ -115,7 +117,7 @@ class playGame():
                 player = "Black"
             
             game.display_board()
-            src, dst = input("%s move: " % player).split()
+            src, dst = input("\t%s move: " % player).split()
             game.move_counter(src, dst)
             moves += 1
             
