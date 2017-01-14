@@ -47,25 +47,66 @@ class Board():
             
                 print(". ", end=" ")
             counter += 1
-        print("|", letters[-1   ], "\n\t -------------------------\n\t  1, 2, 3, 4, 5, 6, 7, 8\n ")
+        print("| ", letters[-1   ], "\n\t -------------------------\n\t  1, 2, 3, 4, 5, 6, 7, 8\n ")
     
     def get_tile(self, tile):
         if self.tiles[tile]:
             return self.tiles[tile]
         else:
             return None
+           
         
     def move_counter(self, source, destination):
         ''' Moves the counter if the destination tile is free. '''
         source = source.upper()
         destination = destination.upper()
-        if self.tiles[source] and not self.tiles[destination]:
+        if source not in self.tiles or destination not in self.tiles:
+            print("\tInvalid move!")
+        elif self.tiles[source] and not self.tiles[destination]:
             temp = self.tiles[source]
             self.tiles[source] = None
             self.tiles[destination] = temp
         else:
-            print("Invalid move!")
+            print("\tInvalid move!")
+       
+    def get_diagonal(self, source, destination):
+        ''' Returns the diagonal list which includes both source and desination tiles'''
+        for diagonal in self.diagonals:
+            print(diagonal)
+            if source in diagonal and destination in diagonal:
+                return diagonal
+        return False
+               
+                
+    def is_legal_move(self, source, destination):
+        '''Returns True if the move is valid and False otherwise.'''
+        if self.tiles[destination]:
+            return False
+        # check the distance between source tile and destination tile
+
+        diagonal = self.get_diagonal(source, destination)
+        if diagonal == False:
+            return False
+        movementDistance = abs(diagonal.index(source) - diagonal.index(destination))
+    
+                
+        print(movementDistance)
+        if movementDistance == 0:
+            return False
+        elif movementDistance ==1:
+            if self.tiles[destination] != None: 
+                return False
+        elif movementDistance == 2:
+            intermediateTile = abs(diagonal.index(source) - diagonal.index(destination)) / 2
+            intermediateTile = int(intermediateTile)
+            print("Intermediate tile:", intermediateTile)
+            refIntermediateTile = diagonal[intermediateTile]
+            if self.tiles[refIntermediateTile] == None:
+                return False
+        elif movementDistance > 2:
+            return False
         
+        return True
 class Counter():    
     def __init__(self,  location, colour):
         self.location = location
@@ -100,16 +141,18 @@ class Player():
     def add_loss(self):
         self.losses += 1  
         
-class playGame():
+        
+class PlayGame():
     def __init__(self):
         self.game_over = False
-    
+        player1 = Player()
+        player2 = Player()
+        
     def start_game(self):
         moves = 0
         game = Board()
         game.place_counters()
-        player1 = Player()
-        player2 = Player()
+
 
         print("""
  @@@@  @@@@    @@@  @   @  @@@  @   @ @@@@@  @@@@
@@ -126,12 +169,18 @@ class playGame():
                 player = "Black"
             
             game.display_board()
-            src, dst = input("\t%s move: " % player).split()
-            game.move_counter(src, dst)
-            moves += 1
+            source, destination = input("\t%s move: " % player).split()
+            source = source.upper()
+            destination = destination.upper()
+
+            if game.is_legal_move(source, destination):
+                game.move_counter(source, destination)
+                moves += 1
+            else:
+                print("Invalid move")
             
             
-game = playGame()
+game = PlayGame()
 game.start_game()
 
 

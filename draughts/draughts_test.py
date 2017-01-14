@@ -34,6 +34,9 @@ class test_board_methods(unittest.TestCase):
         self.assertEqual(b.get_tile("C2"), None)
         self.assertNotEqual(b.get_tile("D3"), None)
         
+    def test_is_legal_move(self):
+        pass
+        
         
             
 class test_counter_methods(unittest.TestCase):
