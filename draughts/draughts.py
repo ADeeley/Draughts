@@ -25,10 +25,10 @@ class Board():
         'G2', 'G4', 'G6', 'G8', 'H1', 'H3', 'H5', 'H7']
         
         for tile in starting_spaces[0:12]:
-            self.tiles[tile] = Counter(tile, "R")
+            self.tiles[tile] = Counter(tile, "R", "Red")
     
         for tile in starting_spaces[12:]:
-            self.tiles[tile] = Counter(tile, "B")
+            self.tiles[tile] = Counter(tile, "B", "Black")
             
     def display_board(self):
         letters = "ABCDEFGH"
@@ -42,7 +42,7 @@ class Board():
             if counter %8 == 0:
                 print("\t| ", end="")
             if self.tiles[tile] != None:
-                print(self.tiles[tile].get_colour(), end="  ")
+                print(self.tiles[tile].get_display_name(), end="  ")
             else:
             
                 print(". ", end=" ")
@@ -72,7 +72,6 @@ class Board():
     def get_diagonal(self, source, destination):
         ''' Returns the diagonal list which includes both source and desination tiles'''
         for diagonal in self.diagonals:
-            print(diagonal)
             if source in diagonal and destination in diagonal:
                 return diagonal
         return False
@@ -80,17 +79,29 @@ class Board():
                 
     def is_legal_move(self, source, destination):
         '''Returns True if the move is valid and False otherwise.'''
-        if self.tiles[destination]:
+        # if source tile has no counter on it - return False
+        if not self.tiles[source]:
             return False
+        # if a counter is already on the tile - return False
+        elif self.tiles[destination]:
+            return False
+        
+        # check if the play is trying to move backwards
+        rows = "ABCDEFGH"
+        if self.tiles[source].get_colour() == "Red":
+            if rows.index(destination[0]) < rows.index(source[0]):
+                print("Can't move backwards, fool.")
+                return False
+        elif self.tiles[source].get_colour() == "Black":
+            if rows.index(destination[0]) > rows.index(source[0]):
+                print("Can't move backwards, fool.")
+                return False
         # check the distance between source tile and destination tile
-
         diagonal = self.get_diagonal(source, destination)
         if diagonal == False:
             return False
         movementDistance = abs(diagonal.index(source) - diagonal.index(destination))
-    
-                
-        print(movementDistance)
+       
         if movementDistance == 0:
             return False
         elif movementDistance ==1:
@@ -99,7 +110,6 @@ class Board():
         elif movementDistance == 2:
             intermediateTile = abs(diagonal.index(source) - diagonal.index(destination)) / 2
             intermediateTile = int(intermediateTile)
-            print("Intermediate tile:", intermediateTile)
             refIntermediateTile = diagonal[intermediateTile]
             if self.tiles[refIntermediateTile] == None:
                 return False
@@ -108,13 +118,16 @@ class Board():
         
         return True
 class Counter():    
-    def __init__(self,  location, colour):
+    def __init__(self,  location, display_name, colour):
         self.location = location
         self.colour = colour
+        self.display_name = display_name
         
     def get_colour(self):
         ''' Returns a string (Red or Black) of the colour of the counter.'''
         return self.colour
+    def get_display_name(self):
+        return self.display_name
         
     def  get_location(self):
         ''' Returns a string of the location of the counter e.g. "A1" '''
@@ -164,20 +177,24 @@ class PlayGame():
  by Adam M Deeley.""")
         while not self.game_over:
             if moves % 2 == 0:
-                player = "Red"
+                colour = "Red"
             else:
-                player = "Black"
+                colour = "Black"
             
             game.display_board()
-            source, destination = input("\t%s move: " % player).split()
+            source, destination = input("\t%s move: " % colour).split()
             source = source.upper()
             destination = destination.upper()
-
-            if game.is_legal_move(source, destination):
-                game.move_counter(source, destination)
-                moves += 1
+            
+                     # check the player is moving one of his tiles - no cheating!
+            if game.tiles[source].get_colour() != colour:
+                print("\tYou are %s. You can't move your opponent's counters" %colour)
             else:
-                print("Invalid move")
+                if game.is_legal_move(source, destination):
+                    game.move_counter(source, destination)
+                    moves += 1
+                else:
+                    print("\tInvalid move")
             
             
 game = PlayGame()
