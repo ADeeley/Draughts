@@ -21,11 +21,11 @@ class test_board_methods(unittest.TestCase):
         'G2', 'G4', 'G6', 'G8', 'H1', 'H3', 'H5', 'H7']
         for space in starting_spaces[0:12]:
             self.assertEqual(b.tiles[space] .get_location(), space)
-            self.assertEqual(b.tiles[space].get_colour(), "R")
+            self.assertEqual(b.tiles[space].get_colour(), "Red")
         
         for space in starting_spaces[12:]:
             self.assertEqual(b.tiles[space] .get_location(), space)
-            self.assertEqual(b.tiles[space].get_colour(), "B")
+            self.assertEqual(b.tiles[space].get_colour(), "Black")
 
     def test_move_counter(self):     
         b = Board()
@@ -35,15 +35,26 @@ class test_board_methods(unittest.TestCase):
         self.assertNotEqual(b.get_tile("D3"), None)
         
     def test_is_legal_move(self):
-        pass
+        b = Board()
+        b.place_counters()
+        self.assertFalse(b.is_legal_move("C2", "C2"))
+        self.assertFalse(b.is_legal_move("A6", "B7"))
+        self.assertFalse(b.is_legal_move("F5", "G5"))
+        self.assertFalse(b.is_legal_move("C6", "E4"))
+        self.assertFalse(b.is_legal_move("A8", "C5"))
+        self.assertFalse(b.is_legal_move("C8", "E1"))
+        self.assertTrue(b.is_legal_move("C4", "D5"))
+        self.assertTrue(b.is_legal_move("C8", "D7"))
+        b.move_counter("C2", "D3")
+        b.move_counter("F1", "E2")
+        self.assertTrue(b.is_legal_move("D3", "F1"))
+
         
-        
-            
 class test_counter_methods(unittest.TestCase):
 
     def test_counter(self):
-        counter = Counter("A1", "R")     
-        self.assertEqual(counter.get_colour(),  "R")
+        counter = Counter("A1","R", "Red")     
+        self.assertEqual(counter.get_colour(),  "Red")
         self.assertEqual(counter.get_location(), "A1")
         
         

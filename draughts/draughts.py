@@ -55,7 +55,6 @@ class Board():
         else:
             return None
            
-        
     def move_counter(self, source, destination):
         ''' Moves the counter if the destination tile is free. '''
         source = source.upper()
@@ -76,7 +75,28 @@ class Board():
                 return diagonal
         return False
                
-                
+    def movementDistance(self, source, destination):
+        diagonal = self.get_diagonal(source, destination)
+        if diagonal == False:
+            return False
+        movementDistance = abs(diagonal.index(source) - diagonal.index(destination))
+        return movementDistance
+     
+    def get_intermediate_tile_reference(self, source, destination):
+        diagonal = self.get_diagonal(source, destination)
+        if diagonal == False:
+            return False
+            
+        intermediateTile = abs(diagonal.index(source) + diagonal.index(destination)) / 2
+        refIntermediateTile = diagonal[int(intermediateTile)]
+        return refIntermediateTile
+        
+    def check_and_take_tiles(self, source, destination):
+        
+        intermediateTile = self.get_intermediate_tile_reference(source, destination)
+        if self.tiles[intermediateTile]:
+            self.tiles[intermediateTile] = None
+     
     def is_legal_move(self, source, destination):
         '''Returns True if the move is valid and False otherwise.'''
         # if source tile has no counter on it - return False
@@ -94,29 +114,25 @@ class Board():
                 return False
         elif self.tiles[source].get_colour() == "Black":
             if rows.index(destination[0]) > rows.index(source[0]):
-                print("Can't move backwards, fool.")
+                print("\tCan't move backwards, fool.")
                 return False
         # check the distance between source tile and destination tile
-        diagonal = self.get_diagonal(source, destination)
-        if diagonal == False:
-            return False
-        movementDistance = abs(diagonal.index(source) - diagonal.index(destination))
-       
+        movementDistance = self.movementDistance(source, destination)
+        
         if movementDistance == 0:
             return False
         elif movementDistance ==1:
             if self.tiles[destination] != None: 
                 return False
         elif movementDistance == 2:
-            intermediateTile = abs(diagonal.index(source) - diagonal.index(destination)) / 2
-            intermediateTile = int(intermediateTile)
-            refIntermediateTile = diagonal[intermediateTile]
-            if self.tiles[refIntermediateTile] == None:
+            intermediateTile = self.get_intermediate_tile_reference(source, destination)
+            if not self.tiles[intermediateTile]:
                 return False
         elif movementDistance > 2:
             return False
         
         return True
+        
 class Counter():    
     def __init__(self,  location, display_name, colour):
         self.location = location
@@ -187,17 +203,24 @@ class PlayGame():
             destination = destination.upper()
             
                      # check the player is moving one of his tiles - no cheating!
-            if game.tiles[source].get_colour() != colour:
+            if not game.tiles[source]:
+                print("\tThere is no counter on location %s" % source)
+            elif source not in game.tiles or destination not in game.tiles:
+                print("\tTile not on board.")
+            elif game.tiles[source].get_colour() != colour:
                 print("\tYou are %s. You can't move your opponent's counters" %colour)
             else:
                 if game.is_legal_move(source, destination):
                     game.move_counter(source, destination)
+                    if game.movementDistance(source, destination) == 2:
+                        game.check_and_take_tiles(source, destination)
                     moves += 1
                 else:
                     print("\tInvalid move")
             
             
-game = PlayGame()
-game.start_game()
+if __name__ == '__main__':            
+    game = PlayGame()
+    game.start_game()
 
 
