@@ -37,17 +37,20 @@ class test_board_methods(unittest.TestCase):
     def test_is_legal_move(self):
         b = Board()
         b.place_counters()
-        self.assertFalse(b.is_legal_move("C2", "C2"))
-        self.assertFalse(b.is_legal_move("A6", "B7"))
-        self.assertFalse(b.is_legal_move("F5", "G5"))
-        self.assertFalse(b.is_legal_move("C6", "E4"))
-        self.assertFalse(b.is_legal_move("A8", "C5"))
-        self.assertFalse(b.is_legal_move("C8", "E1"))
-        self.assertTrue(b.is_legal_move("C4", "D5"))
-        self.assertTrue(b.is_legal_move("C8", "D7"))
+        self.assertFalse(b.is_legal_move("C2", "C2", "Red"))
+        self.assertFalse(b.is_legal_move("A6", "B7", "Red"))
+        self.assertFalse(b.is_legal_move("F5", "G5", "Black"))
+        self.assertFalse(b.is_legal_move("C6", "E4", "Red"))
+        self.assertFalse(b.is_legal_move("A8", "C5", "Red"))
+        self.assertFalse(b.is_legal_move("C8", "E1", "Red"))
+        self.assertFalse(b.is_legal_move("C2", "D3", "Black"))
+        self.assertFalse(b.is_legal_move("F3", "E4", "Red"))
+        
+        self.assertTrue(b.is_legal_move("C4", "D5", "Red"))
+        self.assertTrue(b.is_legal_move("C8", "D7", "Red"))
         b.move_counter("C2", "D3")
         b.move_counter("F1", "E2")
-        self.assertTrue(b.is_legal_move("D3", "F1"))
+        self.assertTrue(b.is_legal_move("D3", "F1", "Red"))
 
         
 class test_counter_methods(unittest.TestCase):

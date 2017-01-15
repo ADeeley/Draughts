@@ -97,15 +97,29 @@ class Board():
         if self.tiles[intermediateTile]:
             self.tiles[intermediateTile] = None
      
-    def is_legal_move(self, source, destination):
+    def is_legal_move(self, source, destination, playerColour):
         '''Returns True if the move is valid and False otherwise.'''
-        # if source tile has no counter on it - return False
-        if not self.tiles[source]:
+        # Check if the tile references are on the board
+        if source not in self.tiles:
+            print("\tSource tile not on board.")
             return False
-        # if a counter is already on the tile - return False
+        elif destination not in self.tiles:
+            print("\tDestination tile not on board.")
+            return False
+        # Check if the source and destination tiles are the same reference
+        elif source == destination:
+            print("\tSource tile is the same as the destination tile.")
+        # Check if there is a tile on the source tile and the desination tile is empty
+        elif not self.tiles[source]:
+            print("\tThere is no counter on source location %s" % source)
+            return False
         elif self.tiles[destination]:
+            print("\tThere is already a counter on location %s" % source)            
             return False
-        
+        # Check if the play is moving one of his own coloured counters
+        elif self.tiles[source].get_colour() != playerColour:
+            print("\tYou are %s. You can't move your opponent's counters" %playerColour)
+            return False        
         # check if the play is trying to move backwards
         rows = "ABCDEFGH"
         if self.tiles[source].get_colour() == "Red":
@@ -120,15 +134,19 @@ class Board():
         movementDistance = self.movementDistance(source, destination)
         
         if movementDistance == 0:
+            print("\tInvalid Move")
             return False
         elif movementDistance ==1:
-            if self.tiles[destination] != None: 
+            if self.tiles[destination] != None:
+                print("\tInvalid Move")            
                 return False
         elif movementDistance == 2:
             intermediateTile = self.get_intermediate_tile_reference(source, destination)
             if not self.tiles[intermediateTile]:
+                print("\tInvalid Move")
                 return False
         elif movementDistance > 2:
+            print("\tInvalid Move")
             return False
         
         return True
@@ -182,6 +200,7 @@ class PlayGame():
         self.player2 = Player()
         
     def check_if_game_over(self):
+        ''' Checks if game over is True and prints out the winning player '''  
         player1Counters = self.player1.get_number_of_counters_on_board()
         player2Counters = self.player2.get_number_of_counters_on_board()
         if player1Counters == 0:
@@ -191,7 +210,24 @@ class PlayGame():
             print("Player1 wins!")
             self.game_over = True
             
+    def get_user_input(self, colour):
+        ''' Gets the user input and ensures this is in the format x1, y1. 
+            - Returns the input as two strings, source and destination. '''
+        while True:
+            userInput = input("\t%s move: " % colour).split()
+            if not len(userInput) == 2:
+                print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
+                continue
+            else:
+                source = userInput[0].upper()
+                destination = userInput[1].upper()
+            if len(source) == 2 and len(destination) == 2:                    
+                return source, destination
+            else:
+                print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
+                
     def start_game(self):
+        ''' Manages the game loop and resets the board '''
         moves = 0
         game = Board()
         game.place_counters()
@@ -206,6 +242,7 @@ class PlayGame():
  @@@@  @   @  @   @  @@@   @@@  @   @   @   @@@@
  
  by Adam M Deeley.""")
+        # --------------- main game loop -------------------
         while not self.game_over:
             if moves % 2 == 0:
                 colour = "Red"
@@ -213,38 +250,17 @@ class PlayGame():
                 colour = "Black"
             
             game.display_board()
-            while True:
-                userInput = input("\t%s move: " % colour).split()
-                if not len(userInput) == 2:
-                    print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
-                    continue
-                else:
-                    source = userInput[0].upper()
-                    destination = userInput[1].upper()
-                if source in game.tiles and destination in game.tiles:    
-                    break
-                else:
-                    print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
-                
-            
-                     # check the player is moving one of his tiles - no cheating!
-            if not game.tiles[source]:
-                print("\tThere is no counter on location %s" % source)
-            elif source not in game.tiles or destination not in game.tiles:
-                print("\tTile not on board.")
-            elif game.tiles[source].get_colour() != colour:
-                print("\tYou are %s. You can't move your opponent's counters" %colour)
+            source, destination = self.get_user_input(colour)
+            if game.is_legal_move(source, destination, colour):
+                game.move_counter(source, destination)
+                if game.movementDistance(source, destination) == 2:
+                    game.check_and_take_tiles(source, destination)
+                    
+                moves += 1
+                self.check_if_game_over()
             else:
-                if game.is_legal_move(source, destination):
-                    game.move_counter(source, destination)
-                    if game.movementDistance(source, destination) == 2:
-                        game.check_and_take_tiles(source, destination)
-                        
-                    moves += 1
-                    self.check_if_game_over()
-                else:
-                    print("\tInvalid move")
-            
+                continue
+        
             
 if __name__ == '__main__':            
     game = PlayGame()
