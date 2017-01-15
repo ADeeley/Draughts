@@ -110,7 +110,7 @@ class Board():
         rows = "ABCDEFGH"
         if self.tiles[source].get_colour() == "Red":
             if rows.index(destination[0]) < rows.index(source[0]):
-                print("Can't move backwards, fool.")
+                print("\tCan't move backwards, fool.")
                 return False
         elif self.tiles[source].get_colour() == "Black":
             if rows.index(destination[0]) > rows.index(source[0]):
@@ -157,6 +157,7 @@ class Player():
     def __init__(self):
         self.wins = 0
         self.losses = 0
+        self.numberOfCountersOnBoard = 12
     
     def get_wins(self):
         return self.wins
@@ -170,18 +171,32 @@ class Player():
     def add_loss(self):
         self.losses += 1  
         
+    def get_number_of_counters_on_board(self):
+        return self.numberOfCountersOnBoard
+        
         
 class PlayGame():
     def __init__(self):
         self.game_over = False
-        player1 = Player()
-        player2 = Player()
+        self.player1 = Player()
+        self.player2 = Player()
         
+    def check_if_game_over(self):
+        player1Counters = self.player1.get_number_of_counters_on_board()
+        player2Counters = self.player2.get_number_of_counters_on_board()
+        if player1Counters == 0:
+            print("Player2 wins!")
+            self.game_over = True
+        elif player1Counters == 0:
+            print("Player1 wins!")
+            self.game_over = True
+            
     def start_game(self):
         moves = 0
         game = Board()
         game.place_counters()
-
+        if self.game_over:
+            self.game_over = False
 
         print("""
  @@@@  @@@@    @@@  @   @  @@@  @   @ @@@@@  @@@@
@@ -198,9 +213,19 @@ class PlayGame():
                 colour = "Black"
             
             game.display_board()
-            source, destination = input("\t%s move: " % colour).split()
-            source = source.upper()
-            destination = destination.upper()
+            while True:
+                userInput = input("\t%s move: " % colour).split()
+                if not len(userInput) == 2:
+                    print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
+                    continue
+                else:
+                    source = userInput[0].upper()
+                    destination = userInput[1].upper()
+                if source in game.tiles and destination in game.tiles:    
+                    break
+                else:
+                    print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
+                
             
                      # check the player is moving one of his tiles - no cheating!
             if not game.tiles[source]:
@@ -214,7 +239,9 @@ class PlayGame():
                     game.move_counter(source, destination)
                     if game.movementDistance(source, destination) == 2:
                         game.check_and_take_tiles(source, destination)
+                        
                     moves += 1
+                    self.check_if_game_over()
                 else:
                     print("\tInvalid move")
             
