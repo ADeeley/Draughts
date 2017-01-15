@@ -34,7 +34,7 @@ class Board():
         letters = "ABCDEFGH"
         counter = 0
         letter_counter = 0
-        print("\n\t\t  \n\t -------------------------")
+        print("\n\t\t  \n\t " + "="*25)
         for tile in self.tileNames:
             if counter %8 == 0 and counter != 0:
                 print("| ", letters[letter_counter], "\n        |\t\t\t  |")
@@ -47,7 +47,7 @@ class Board():
             
                 print(". ", end=" ")
             counter += 1
-        print("| ", letters[-1   ], "\n\t -------------------------\n\t  1, 2, 3, 4, 5, 6, 7, 8\n ")
+        print("| ", letters[-1   ], "\n\t "+ "="*25 + "\n\n\t  1, 2, 3, 4, 5, 6, 7, 8\n ")
     
     def get_tile(self, tile):
         if self.tiles[tile]:
@@ -75,7 +75,7 @@ class Board():
                 return diagonal
         return False
                
-    def movementDistance(self, source, destination):
+    def get_movement_distance(self, source, destination):
         diagonal = self.get_diagonal(source, destination)
         if diagonal == False:
             return False
@@ -83,6 +83,8 @@ class Board():
         return movementDistance
      
     def get_intermediate_tile_reference(self, source, destination):
+        ''' '''
+        assert self.get_movement_distance(source, destination) == 2, "Distance between source and destination must be 2."
         diagonal = self.get_diagonal(source, destination)
         if diagonal == False:
             return False
@@ -91,12 +93,22 @@ class Board():
         refIntermediateTile = diagonal[int(intermediateTile)]
         return refIntermediateTile
         
-    def check_and_take_tiles(self, source, destination):
-        
+    def check_and_take_tiles(self, source, destination, playerColour):
+        ''' Checks if there is an intermediate tile of the opponents colour to be taken.
+            removes the tile from the tilelist if this is the case.
+            - Returns nothing. '''
+        assert self.get_movement_distance(source, destination) == 2, "Distance between source and destination must be 2."        
         intermediateTile = self.get_intermediate_tile_reference(source, destination)
+        
+        # Checks if there is a counter on the tile
         if self.tiles[intermediateTile]:
-            self.tiles[intermediateTile] = None
-     
+            if self.tiles[intermediateTile].get_colour() == playerColour:
+                pass
+            else:
+                self.tiles[intermediateTile] = None
+        else:
+            pass
+            
     def is_legal_move(self, source, destination, playerColour):
         '''Returns True if the move is valid and False otherwise.'''
         # Check if the tile references are on the board
@@ -131,7 +143,7 @@ class Board():
                 print("\tCan't move backwards, fool.")
                 return False
         # check the distance between source tile and destination tile
-        movementDistance = self.movementDistance(source, destination)
+        movementDistance = self.get_movement_distance(source, destination)
         
         if movementDistance == 0:
             print("\tInvalid Move")
@@ -142,7 +154,7 @@ class Board():
                 return False
         elif movementDistance == 2:
             intermediateTile = self.get_intermediate_tile_reference(source, destination)
-            if not self.tiles[intermediateTile]:
+            if not self.tiles[intermediateTile] or self.tiles[intermediateTile].get_colour() == playerColour:
                 print("\tInvalid Move")
                 return False
         elif movementDistance > 2:
@@ -167,8 +179,6 @@ class Counter():
         ''' Returns a string of the location of the counter e.g. "A1" '''
         return self.location
 
-    def get_possible_moves(self):
-        pass
         
 class Player():    
     ''' A class to keep track of the wins and losses for each player. '''
@@ -253,8 +263,8 @@ class PlayGame():
             source, destination = self.get_user_input(colour)
             if game.is_legal_move(source, destination, colour):
                 game.move_counter(source, destination)
-                if game.movementDistance(source, destination) == 2:
-                    game.check_and_take_tiles(source, destination)
+                if game.get_movement_distance(source, destination) == 2:
+                    game.check_and_take_tiles(source, destination, colour)
                     
                 moves += 1
                 self.check_if_game_over()
