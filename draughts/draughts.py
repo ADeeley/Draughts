@@ -76,6 +76,7 @@ class Board():
         return False
                
     def get_movement_distance(self, source, destination):
+        ''' Gets the distance between the source and the destination tiles in a diagonal. '''
         diagonal = self.get_diagonal(source, destination)
         if diagonal == False:
             return False
@@ -83,7 +84,10 @@ class Board():
         return movementDistance
      
     def get_intermediate_tile_reference(self, source, destination):
-        ''' '''
+        ''' Returns the reference of the tile inbetween the source and the destination
+        tiles. 
+            - Returns the tile reference as a string if the source and destination are in the same diagonal.
+            returns false otherwise.'''
         assert self.get_movement_distance(source, destination) == 2, "Distance between source and destination must be 2."
         diagonal = self.get_diagonal(source, destination)
         if diagonal == False:
@@ -185,7 +189,7 @@ class Player():
     def __init__(self):
         self.wins = 0
         self.losses = 0
-        self.numberOfCountersOnBoard = 12
+        self.countersRemaining = 12
     
     def get_wins(self):
         return self.wins
@@ -199,8 +203,12 @@ class Player():
     def add_loss(self):
         self.losses += 1  
         
+    def remove_counter(self):
+        ''' Removes a counter that is taken by an opponent. '''
+        self.countersRemaining -= 1
+        
     def get_number_of_counters_on_board(self):
-        return self.numberOfCountersOnBoard
+        return self.countersRemaining
         
         
 class PlayGame():
@@ -210,14 +218,20 @@ class PlayGame():
         self.player2 = Player()
         
     def check_if_game_over(self):
-        ''' Checks if game over is True and prints out the winning player '''  
+        ''' Checks if game over is True and prints out the winning player.
+            Adds the relevant wins and losses to each player. '''  
         player1Counters = self.player1.get_number_of_counters_on_board()
         player2Counters = self.player2.get_number_of_counters_on_board()
+       
         if player1Counters == 0:
             print("Player2 wins!")
+            self.player2.add_loss()
+            self.player1.add_win()
             self.game_over = True
         elif player1Counters == 0:
             print("Player1 wins!")
+            self.player2.add_loss()
+            self.player1.add_win()
             self.game_over = True
             
     def get_user_input(self, colour):
@@ -244,14 +258,18 @@ class PlayGame():
         if self.game_over:
             self.game_over = False
 
-        print("""
+        print("\n" + """ ------------------------------------------------
  @@@@  @@@@    @@@  @   @  @@@  @   @ @@@@@  @@@@
  @   @ @   @  @   @ @   @ @   @ @   @   @   @
  @   @ @@@@   @@@@@ @   @ @ @@@ @@@@@   @    @@@
  @   @ @  @   @   @ @   @ @   @ @   @   @       @
  @@@@  @   @  @   @  @@@   @@@  @   @   @   @@@@
  
- by Adam M Deeley.""")
+ by Adam M Deeley.
+ ------------------------------------------------
+ 
+ Type "q" to exit the program, "h" for help and\n "f" to forefit the match and start a new game.
+ """)
         # --------------- main game loop -------------------
         while not self.game_over:
             if moves % 2 == 0:

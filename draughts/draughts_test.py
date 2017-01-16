@@ -42,6 +42,9 @@ class test_board_methods(unittest.TestCase):
         self.assertEqual(b.get_intermediate_tile_reference("F1", "H3"), "G2")
         self.assertEqual(b.get_intermediate_tile_reference("B1", "D3"), "C2")
         self.assertEqual(b.get_intermediate_tile_reference("E8", "G6"), "F7")
+       
+    def test_check_and_take_tiles(self):
+        b = Board()
         
     def test_place_counters(self):
         b = Board()
