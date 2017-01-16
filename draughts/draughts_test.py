@@ -43,8 +43,6 @@ class test_board_methods(unittest.TestCase):
         self.assertEqual(b.get_intermediate_tile_reference("B1", "D3"), "C2")
         self.assertEqual(b.get_intermediate_tile_reference("E8", "G6"), "F7")
        
-    def test_check_and_take_tiles(self):
-        b = Board()
         
     def test_place_counters(self):
         b = Board()
@@ -107,5 +105,14 @@ class test_player_methods(unittest.TestCase):
         self.assertEqual(p.get_losses(), 5)
            
 
+class test_play_game_methods(unittest.TestCase):
+    
+    def test_check_and_take_tiles(self):
+        b = Board()
+        b.place_counters()
+        game = PlayGame()
+        game.check_and_take_tiles("E4", "G2", "Red")
+        self.assertIsNone(b.get_tile("F3"))
+           
 if __name__ == '__main__':
     unittest.main()

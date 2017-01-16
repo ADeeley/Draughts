@@ -96,22 +96,6 @@ class Board():
         intermediateTile = abs(diagonal.index(source) + diagonal.index(destination)) / 2
         refIntermediateTile = diagonal[int(intermediateTile)]
         return refIntermediateTile
-        
-    def check_and_take_tiles(self, source, destination, playerColour):
-        ''' Checks if there is an intermediate tile of the opponents colour to be taken.
-            removes the tile from the tilelist if this is the case.
-            - Returns nothing. '''
-        assert self.get_movement_distance(source, destination) == 2, "Distance between source and destination must be 2."        
-        intermediateTile = self.get_intermediate_tile_reference(source, destination)
-        
-        # Checks if there is a counter on the tile
-        if self.tiles[intermediateTile]:
-            if self.tiles[intermediateTile].get_colour() == playerColour:
-                pass
-            else:
-                self.tiles[intermediateTile] = None
-        else:
-            pass
             
     def is_legal_move(self, source, destination, playerColour):
         '''Returns True if the move is valid and False otherwise.'''
@@ -186,10 +170,11 @@ class Counter():
         
 class Player():    
     ''' A class to keep track of the wins and losses for each player. '''
-    def __init__(self):
+    def __init__(self, colour):
         self.wins = 0
         self.losses = 0
         self.countersRemaining = 12
+        self.colour = None
     
     def get_wins(self):
         return self.wins
@@ -210,19 +195,22 @@ class Player():
     def get_number_of_counters_on_board(self):
         return self.countersRemaining
         
+    def get_colour(self):
+        return self.colour
         
 class PlayGame():
     def __init__(self):
         self.game_over = False
-        self.player1 = Player()
-        self.player2 = Player()
+        self.player1 = Player("Red")
+        self.player2 = Player("Black")
+        self.game = Board()
+        self.game.place_counters()
         
     def check_if_game_over(self):
         ''' Checks if game over is True and prints out the winning player.
             Adds the relevant wins and losses to each player. '''  
         player1Counters = self.player1.get_number_of_counters_on_board()
         player2Counters = self.player2.get_number_of_counters_on_board()
-       
         if player1Counters == 0:
             print("Player2 wins!")
             self.player2.add_loss()
@@ -249,12 +237,33 @@ class PlayGame():
                 return source, destination
             else:
                 print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
-                
+    
+            
+    def check_and_take_tiles(self, source, destination, playerColour):
+        ''' Checks if there is an intermediate tile of the opponents colour to be taken.
+            removes the tile from the tilelist if this is the case.
+            - Returns nothing. '''
+        assert self.game.get_movement_distance(source, destination) == 2, "Distance between source and destination must be 2."        
+        intermediateTile = self.game.get_intermediate_tile_reference(source, destination)
+        
+        # Checks if there is a counter on the tile
+        if self.game.get_tile(intermediateTile):
+            if self.game.get_tile(intermediateTile).get_colour() == playerColour:
+                pass
+            else:
+                self.game.tiles[intermediateTile]= None
+                # remove a counter from the player who had one taken
+                if self.player1.get_colour() != playerColour:
+                    self.player1.remove_counter()
+                else:
+                    self.player2.remove_counter()
+        else:
+            pass
+    
     def start_game(self):
         ''' Manages the game loop and resets the board '''
         moves = 0
-        game = Board()
-        game.place_counters()
+        self.game.place_counters()
         if self.game_over:
             self.game_over = False
 
@@ -277,19 +286,17 @@ class PlayGame():
             else:
                 colour = "Black"
             
-            game.display_board()
+            self.game.display_board()
             source, destination = self.get_user_input(colour)
-            if game.is_legal_move(source, destination, colour):
-                game.move_counter(source, destination)
-                if game.get_movement_distance(source, destination) == 2:
-                    game.check_and_take_tiles(source, destination, colour)
-                    
+            if self.game.is_legal_move(source, destination, colour):
+                self.game.move_counter(source, destination)
+                if self.game.get_movement_distance(source, destination) == 2:
+                    self.check_and_take_tiles(source, destination, colour)
                 moves += 1
                 self.check_if_game_over()
             else:
                 continue
         
-            
 if __name__ == '__main__':            
     game = PlayGame()
     game.start_game()
