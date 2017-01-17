@@ -224,17 +224,19 @@ class PlayGame():
             
     def get_user_input(self, colour):
         ''' Gets the user input and ensures this is in the format x1, y1. 
-            - Returns the input as two strings, source and destination. '''
+            - Returns a tuple '''
         while True:
             userInput = input("\t%s move: " % colour).split()
-            if not len(userInput) == 2:
+            if userInput[0].upper() in ["Q", "H", "F"]:
+                return userInput[0].upper()
+            elif not len(userInput) == 2:
                 print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
                 continue
             else:
                 source = userInput[0].upper()
                 destination = userInput[1].upper()
             if len(source) == 2 and len(destination) == 2:                    
-                return source, destination
+                return (source, destination)
             else:
                 print("\tSorry, that command is not recognised. Moves must be in the format x1 y1")
     
@@ -287,7 +289,19 @@ class PlayGame():
                 colour = "Black"
             
             self.game.display_board()
-            source, destination = self.get_user_input(colour)
+            while True:
+                userInput = self.get_user_input(colour)
+                if userInput == "Q":
+                    print("Cheers for playing!")
+                    return None
+                elif userInput == "F":
+                    print("You have forefitted the match.")
+                    return None
+                elif userInput == "H":
+                    print("Help is here...")
+                else:
+                    break
+            source, destination = userInput
             if self.game.is_legal_move(source, destination, colour):
                 self.game.move_counter(source, destination)
                 if self.game.get_movement_distance(source, destination) == 2:
