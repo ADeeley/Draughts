@@ -1,16 +1,19 @@
 ========
-draughts
+Draughts
 ========
 
 
-Add a short description here!
+Python implementation of Draughts based in the console.
 
 
 Description
 ===========
 
-A longer description of your project goes here...
+This game be played by two challengers in the console. 
 
+To move your counter, type the destination of the counter in the format "current location desired location", e.g. "c2 d3".
+
+The game ends when only counters of one colour remain on the board.
 
 Note
 ====
